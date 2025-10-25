@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema Don Cucho{% endblock %}</title>
+</head>
+<body>
+    <div id="header">
+        <h1>Sistema de Inventario Don Cucho</h1>
+    </div>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        </footer>
+</body>
+</html>

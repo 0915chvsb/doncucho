@@ -1,7 +1,9 @@
-
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+PROJECT_TEMPLATES_DIR = os.path.join(BASE_DIR, 'inventario', 'templates')
 
 SECRET_KEY = 'django-insecure-9crq*+(e)zrz(l1$5_61l)dr4apl^-uw-%39)0+ny&te39+^p%'
 
@@ -17,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'inventario',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -34,8 +37,8 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [PROJECT_TEMPLATES_DIR],  # <--- Lo dejaremos temporalmente vacío
+        'APP_DIRS': True, 
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -81,5 +84,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+FIREBASE_SERVICE_ACCOUNT = 'serviceAccountKey.json' 
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
