@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Django", // Nombre de la configuración
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\manage.py", // Le dice que ejecute manage.py
+            "args": [
+                "runserver" // Le pasa el argumento 'runserver' a manage.py
+            ],
+            "django": true, // Habilita características específicas de Django
+            "console": "integratedTerminal" // Muestra la salida en la terminal de VS Code
+        }
+    ]
+}
