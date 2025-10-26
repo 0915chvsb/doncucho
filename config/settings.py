@@ -3,13 +3,18 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-PROJECT_TEMPLATES_DIR = os.path.join(BASE_DIR, 'inventario', 'templates')
+FIREBASE_SERVICE_ACCOUNT = 'serviceAccountKey.json' 
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-SECRET_KEY = 'django-insecure-9crq*+(e)zrz(l1$5_61l)dr4apl^-uw-%39)0+ny&te39+^p%'
+SECRET_KEY = 'tu_clave_secreta' 
 
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,10 +42,11 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [PROJECT_TEMPLATES_DIR],  # <--- Lo dejaremos temporalmente vacío
-        'APP_DIRS': True, 
+        'DIRS': [],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -59,6 +65,7 @@ DATABASES = {
     }
 }
 
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -74,23 +81,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es-pe'
+
+TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
 USE_TZ = True
 
+
 STATIC_URL = 'static/'
 
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-FIREBASE_SERVICE_ACCOUNT = 'serviceAccountKey.json' 
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"

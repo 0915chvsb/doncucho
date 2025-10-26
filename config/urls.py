@@ -1,13 +1,13 @@
 from django.contrib import admin
-from django.urls import path, include # <-- ¡IMPORTANTE: Añade 'include' aquí!
+from django.urls import path, include
 from inventario import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'), 
-    path('firebase-check/', views.login_firebase_prueba, name='firebase_check'),
+    path('accounts/', include('django.contrib.auth.urls')),
     
-    # AÑADE ESTA LÍNEA CLAVE:
-    # Esto le dice a Django que incluya todas las rutas estándar de login/logout/password reset
-    path('accounts/', include('django.contrib.auth.urls')), 
+    path('api/login-check/', views._login_verification_logic, name='login_check'),
+    
+    path('', views.index, name='index'),
 ]

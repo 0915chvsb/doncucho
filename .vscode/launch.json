@@ -5,13 +5,12 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\manage.py", // Ejecuta manage.py
+            "program": "${workspaceFolder}\\manage.py", 
             "args": [
-                "runserver" // Comando a ejecutar
+                "runserver" 
             ],
-            "django": true, // Habilita herramientas de depuración de Django
+            "django": true, 
             "console": "integratedTerminal",
-            // IMPORTANTE: Asegúrate de que el 'config.settings' apunte a tu carpeta principal
             "env": { 
                 "DJANGO_SETTINGS_MODULE": "config.settings"
             }

@@ -1,7 +1,7 @@
 {% extends 'registration/base_login.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Inicio de Sesión{% endblock %}
+{% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
 <div class="card shadow-sm">
@@ -10,6 +10,7 @@
     </div>
     <div class="card-body">
         <form id="loginForm" method="POST">
+            {% csrf_token %}
             <div class="form-group">
                 <label for="id_email">Email (o Usuario)</label>
                 <input type="email" name="email" id="id_email" class="form-control" required>
@@ -18,7 +19,7 @@
                 <label for="id_password">Contraseña</label>
                 <input type="password" name="password" id="id_password" class="form-control" required>
             </div>
-
+            
             <button type="submit" class="btn btn-primary btn-block">Entrar con Firebase</button>
             <div id="error-message" class="text-danger mt-3" style="display:none;"></div>
         </form>
@@ -31,8 +32,73 @@
 
 {% block extra_js %}
 <script>
-    // Próximamente: Aquí iría el código JavaScript que lee los campos,
-    // llama a firebase.auth().signInWithEmailAndPassword() y
-    // redirige al usuario si el token es válido.
+    const auth = firebase.auth();
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('error-message');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('id_email').value;
+        const password = document.getElementById('id_password').value;
+        
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            
+            const idToken = await user.getIdToken();
+
+            const response = await fetch('{% url "login_check" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`,
+                    'X-CSRFToken': getCookie('csrftoken') 
+                },
+                body: JSON.stringify({ email: email })
+            });
+
+            if (response.ok) {
+                window.location.href = '{% url "index" %}';
+            } else {
+                const errorData = await response.json();
+                errorMessage.textContent = errorData.error || 'Error de verificación de permisos en el servidor.';
+                errorMessage.style.display = 'block';
+            }
+
+        } catch (error) {
+            let msg = 'Error desconocido. Revisa email y contraseña.';
+            
+            if (error.code === 'auth/api-key-not-valid') {
+                msg = 'ERROR DE CONFIGURACIÓN: La Clave API de Firebase no es válida. Revisa base_login.html.';
+            } else if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
+                msg = 'Usuario o email no encontrado.';
+            } else if (error.code === 'auth/wrong-password') {
+                msg = 'Contraseña incorrecta. Intenta de nuevo.';
+            } else if (error.code === 'auth/network-request-failed') {
+                msg = 'Error de red. Revisa tu conexión a internet.';
+            }
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'block';
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 {% endblock %}

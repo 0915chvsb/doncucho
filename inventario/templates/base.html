@@ -1,22 +1,32 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sistema Don Cucho{% endblock %}</title>
+    <title>{% block title %}{% endblock %} - Sistema Don Cucho</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <div id="header">
-        <h1>Sistema de Inventario Don Cucho</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'index' %}">Don Cucho Web</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_staff %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin Panel</a></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item navbar-text mr-3">Hola, {{ request.user.username }}</li>
+                    <li class="nav-item"><a class="btn btn-outline-danger" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
     </div>
-
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <footer>
-        </footer>
 </body>
 </html>

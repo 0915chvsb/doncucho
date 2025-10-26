@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="display-4">¡Acceso Exitoso!</h1>
+        <p class="lead">Estás en la versión 1.4 del Sistema de Inventario Don Cucho, con autenticación Firebase.</p>
+        <hr class="my-4">
+        
+        <h3 class="mt-4">Acciones Disponibles:</h3>
+        <ul class="list-group">
+            {% if request.user.is_staff %}
+                <li class="list-group-item list-group-item-success">
+                    <a href="{% url 'admin:index' %}">
+                        Próximamente
+                    </a>
+                </li>
+            {% else %}
+                <li class="list-group-item list-group-item-info">
+                    (Próximamente: Módulo de Venta POS para cajero)
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
