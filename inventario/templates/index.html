@@ -4,20 +4,25 @@
 
 {% block content %}
     <div class="jumbotron">
-        <h1 class="display-4">Acceso Exitoso como Admin</h1>
-        <p class="lead">Está es la versión 1.5 del Sistema de Inventario Don Cucho.</p>
+        <h1 class="display-4">¡Acceso Exitoso! (Admin)</h1>
+        <p class="lead">Estás en la versión 1.5 del Sistema de Inventario Don Cucho.</p>
         <hr class="my-4">
         
         <h3 class="mt-4">Acciones de Administrador:</h3>
         <ul class="list-group">
-            <li class="list-group-item list-group-item-success">
-                <a href="{% url 'admin:index' %}">
-                    Ir al Panel de Administración (CRUD de Productos)
+            <li class="list-group-item list-group-item-info">
+                <a href="{% url 'gestion_inventario' %}">
+                    Gestionar Inventario (CRUD)
                 </a>
             </li>
-            <li class="list-group-item list-group-item-info">
+            <li class="list-group-item list-group-item-secondary">
+                <a href="{% url 'admin:index' %}">
+                    Ir al Panel de Administración (Técnico)
+                </a>
+            </li>
+            <li class="list-group-item list-group-item-success">
                 <a href="{% url 'pos' %}">
-                    Ir al Módulo de Venta
+                    Ir al Módulo de Venta (POS)
                 </a>
             </li>
         </ul>

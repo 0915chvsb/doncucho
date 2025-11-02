@@ -167,6 +167,40 @@
             }
         }
 
+        btnFinalizarVenta.addEventListener('click', async function() {
+            if (Object.keys(carrito).length === 0) {
+                alert('El carrito está vacío.');
+                return;
+            }
+            
+            if (!confirm('¿Está seguro de que desea finalizar esta venta?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('{% url "api_finalizar_venta" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ carrito: carrito })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Venta realizada con éxito.');
+                    carrito = {};
+                    actualizarVistaCarrito();
+                } else {
+                    alert(`Error al finalizar la venta: ${data.error}`);
+                }
+            } catch (error) {
+                alert('Error de red al finalizar la venta.');
+            }
+        });
+
         function mostrarError(mensaje) {
             errorBusqueda.textContent = mensaje;
             errorBusqueda.style.display = 'block';

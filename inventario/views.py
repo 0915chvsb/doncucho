@@ -1,11 +1,13 @@
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
+from functools import wraps
+# from django.contrib import messages
 
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -22,6 +24,15 @@ if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
     except Exception as e:
         print(f"ATENCIÓN: Firebase Admin SDK no inicializado correctamente. {e}")
+
+
+def admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_staff:
+            return redirect('index')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 @login_required
@@ -117,4 +128,95 @@ def api_buscar_producto(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
             
+    return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+@login_required
+@admin_required
+def gestion_inventario(request):
+    productos = Producto.objects.all()
+    context = {
+        'productos': productos
+    }
+    return render(request, 'inventario/gestion.html', context)
+
+@login_required
+@admin_required
+def inventario_crear(request):
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo')
+        nombre = request.POST.get('nombre')
+        precio = request.POST.get('precio')
+        stock = request.POST.get('stock')
+        
+        try:
+            Producto.objects.create(
+                codigo=codigo,
+                nombre=nombre,
+                precio=precio,
+                stock=stock
+            )
+            return redirect('gestion_inventario')
+        except IntegrityError:
+            pass 
+        except Exception as e:
+            pass 
+            
+    return render(request, 'inventario/inventario_form.html')
+
+@login_required
+@admin_required
+def inventario_editar(request, id):
+    producto = get_object_or_404(Producto, id=id)
+
+    if request.method == 'POST':
+        producto.codigo = request.POST.get('codigo')
+        producto.nombre = request.POST.get('nombre')
+        producto.precio = request.POST.get('precio')
+        producto.stock = request.POST.get('stock')
+        
+        try:
+            producto.save()
+            return redirect('gestion_inventario')
+        except IntegrityError:
+            pass 
+        except Exception as e:
+            pass
+            
+    context = {
+        'producto': producto
+    }
+    return render(request, 'inventario/inventario_form.html', context)
+
+@login_required
+@admin_required
+def inventario_eliminar(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    producto.delete()
+    return redirect('gestion_inventario')
+
+@login_required
+@csrf_exempt
+def api_finalizar_venta(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            carrito = data.get('carrito') 
+
+            with transaction.atomic():
+                for codigo, item in carrito.items():
+                    producto = Producto.objects.select_for_update().get(codigo=codigo)
+                    
+                    if item['cantidad'] > producto.stock:
+                        raise Exception(f"Stock insuficiente para {producto.nombre}")
+                    
+                    producto.stock -= item['cantidad']
+                    producto.save()
+            
+            return JsonResponse({'success': 'Venta realizada y stock actualizado.'}, status=200)
+            
+        except Producto.DoesNotExist:
+            return JsonResponse({'error': 'Un producto en el carrito no existe.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
     return JsonResponse({'error': 'Método no permitido.'}, status=405)
