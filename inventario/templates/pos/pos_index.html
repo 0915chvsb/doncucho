@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Punto de Venta (POS){% endblock %}
+
+{% block content %}
+<div class="row">
+    
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>Carrito de Venta</h3>
+            </div>
+            <div class="card-body" style="height: 60vh; overflow-y: auto;">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>P. Unit.</th>
+                            <th>Subtotal</th>
+                            <th>Quitar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="carrito-tabla-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-5">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header">
+                <h3>Buscar Producto</h3>
+            </div>
+            <div class="card-body">
+                <form id="form-buscar-producto">
+                    <div class="form-group">
+                        <label for="codigo-input">Ingresar Código de Barras:</label>
+                        <input type="text" id="codigo-input" class="form-control form-control-lg" autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Buscar Manual</button>
+                    <div id="error-busqueda" class="text-danger mt-2" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>Total a Pagar</h3>
+            </div>
+            <div class="card-body text-center">
+                <h1 id="total-pagar" class="display-4 text-success">S/ 0.00</h1>
+                <button id="btn-finalizar-venta" class="btn btn-success btn-lg btn-block mt-3" disabled>Finalizar Venta</button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formBuscar = document.getElementById('form-buscar-producto');
+        const inputCodigo = document.getElementById('codigo-input');
+        const errorBusqueda = document.getElementById('error-busqueda');
+        const carritoBody = document.getElementById('carrito-tabla-body');
+        const totalPagarEl = document.getElementById('total-pagar');
+        const btnFinalizarVenta = document.getElementById('btn-finalizar-venta');
+        
+        let carrito = {};
+
+        formBuscar.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const codigo = inputCodigo.value;
+            if (!codigo) return;
+            
+            await buscarProducto(codigo);
+        });
+        
+        async function buscarProducto(codigo) {
+            errorBusqueda.style.display = 'none';
+            
+            try {
+                const response = await fetch('{% url "api_buscar_producto" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ codigo: codigo })
+                });
+
+                if (response.status === 404) {
+                    const data = await response.json();
+                    mostrarError(data.error);
+                } else if (response.ok) {
+                    const producto = await response.json();
+                    agregarAlCarrito(producto);
+                } else {
+                    mostrarError('Error del servidor al buscar producto.');
+                }
+            } catch (error) {
+                mostrarError('Error de red. Intente de nuevo.');
+            }
+            inputCodigo.value = '';
+            inputCodigo.focus();
+        }
+
+        function agregarAlCarrito(producto) {
+            if (carrito[producto.codigo]) {
+                if (carrito[producto.codigo].cantidad < producto.stock) {
+                    carrito[producto.codigo].cantidad++;
+                } else {
+                    mostrarError(`Stock máximo alcanzado para ${producto.nombre}`);
+                }
+            } else {
+                carrito[producto.codigo] = {
+                    ...producto,
+                    cantidad: 1
+                };
+            }
+            actualizarVistaCarrito();
+        }
+        
+        function actualizarVistaCarrito() {
+            carritoBody.innerHTML = '';
+            let totalGeneral = 0;
+            
+            Object.values(carrito).forEach(item => {
+                const subtotal = item.precio * item.cantidad;
+                totalGeneral += subtotal;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.codigo}</td>
+                    <td>${item.nombre}</td>
+                    <td>${item.cantidad}</td>
+                    <td>S/ ${item.precio.toFixed(2)}</td>
+                    <td>S/ ${subtotal.toFixed(2)}</td>
+                    <td><button class="btn btn-danger btn-sm" data-codigo="${item.codigo}">X</button></td>
+                `;
+                carritoBody.appendChild(row);
+            });
+            
+            totalPagarEl.textContent = `S/ ${totalGeneral.toFixed(2)}`;
+            btnFinalizarVenta.disabled = totalGeneral === 0;
+        }
+        
+        carritoBody.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-danger')) {
+                const codigo = e.target.dataset.codigo;
+                quitarDelCarrito(codigo);
+            }
+        });
+        
+        function quitarDelCarrito(codigo) {
+            if (carrito[codigo]) {
+                carrito[codigo].cantidad--;
+                if (carrito[codigo].cantidad <= 0) {
+                    delete carrito[codigo];
+                }
+                actualizarVistaCarrito();
+            }
+        }
+
+        function mostrarError(mensaje) {
+            errorBusqueda.textContent = mensaje;
+            errorBusqueda.style.display = 'block';
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

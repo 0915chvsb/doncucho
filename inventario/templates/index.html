@@ -4,23 +4,22 @@
 
 {% block content %}
     <div class="jumbotron">
-        <h1 class="display-4">¡Acceso Exitoso!</h1>
-        <p class="lead">Estás en la versión 1.4 del Sistema de Inventario Don Cucho, con autenticación Firebase.</p>
+        <h1 class="display-4">Acceso Exitoso como Admin</h1>
+        <p class="lead">Está es la versión 1.5 del Sistema de Inventario Don Cucho.</p>
         <hr class="my-4">
         
-        <h3 class="mt-4">Acciones Disponibles:</h3>
+        <h3 class="mt-4">Acciones de Administrador:</h3>
         <ul class="list-group">
-            {% if request.user.is_staff %}
-                <li class="list-group-item list-group-item-success">
-                    <a href="{% url 'admin:index' %}">
-                        Próximamente
-                    </a>
-                </li>
-            {% else %}
-                <li class="list-group-item list-group-item-info">
-                    (Próximamente: Módulo de Venta POS para cajero)
-                </li>
-            {% endif %}
+            <li class="list-group-item list-group-item-success">
+                <a href="{% url 'admin:index' %}">
+                    Ir al Panel de Administración (CRUD de Productos)
+                </a>
+            </li>
+            <li class="list-group-item list-group-item-info">
+                <a href="{% url 'pos' %}">
+                    Ir al Módulo de Venta
+                </a>
+            </li>
         </ul>
     </div>
 {% endblock %}
