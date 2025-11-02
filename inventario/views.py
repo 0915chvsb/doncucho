@@ -8,15 +8,16 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.db.models import F
-from django.contrib import messages
+# from django.contrib import messages
 
 import firebase_admin
 from firebase_admin import credentials, auth
 import os
 import json
 import pytz
+from decimal import Decimal
 
-from .models import Producto
+from .models import Producto, Venta, DetalleVenta
 
 
 if not firebase_admin._apps:
@@ -158,12 +159,11 @@ def inventario_crear(request):
                 stock=stock,
                 stock_minimo=stock_minimo
             )
-            messages.success(request, f'¡El producto "{nombre}" se creó correctamente!')
             return redirect('gestion_inventario')
         except IntegrityError:
-            messages.error(request, f'Error: El código "{codigo}" ya existe. Intenta con otro.')
+            pass 
         except Exception as e:
-            messages.error(request, f'Error al guardar: {e}')
+            pass 
             
     return render(request, 'inventario/inventario_form.html')
 
@@ -181,12 +181,11 @@ def inventario_editar(request, id):
         
         try:
             producto.save()
-            messages.success(request, f'¡El producto "{producto.nombre}" se actualizó correctamente!')
             return redirect('gestion_inventario')
         except IntegrityError:
-            messages.error(request, f'Error: Ese código ya está en uso por otro producto.')
+            pass 
         except Exception as e:
-            messages.error(request, f'Error al guardar: {e}')
+            pass
             
     context = {
         'producto': producto
@@ -198,7 +197,6 @@ def inventario_editar(request, id):
 def inventario_eliminar(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
-    messages.success(request, f'El producto "{producto.nombre}" fue eliminado.')
     return redirect('gestion_inventario')
 
 @login_required
@@ -207,8 +205,11 @@ def api_finalizar_venta(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            carrito = data.get('carrito') 
-
+            carrito = data.get('carrito')
+            total_venta = 0
+            
+            detalles_venta = []
+            
             with transaction.atomic():
                 for codigo, item in carrito.items():
                     producto = Producto.objects.select_for_update().get(codigo=codigo)
@@ -218,8 +219,30 @@ def api_finalizar_venta(request):
                     
                     producto.stock -= item['cantidad']
                     producto.save()
+                    
+                    subtotal = Decimal(item['precio']) * item['cantidad']
+                    total_venta += subtotal
+                    
+                    detalles_venta.append(
+                        DetalleVenta(
+                            producto=producto,
+                            cantidad=item['cantidad'],
+                            precio_unitario=item['precio'],
+                            subtotal=subtotal
+                        )
+                    )
+
+                nueva_venta = Venta.objects.create(
+                    cajero=request.user,
+                    total_venta=total_venta
+                )
+                
+                for detalle in detalles_venta:
+                    detalle.venta = nueva_venta
+                
+                DetalleVenta.objects.bulk_create(detalles_venta)
             
-            return JsonResponse({'success': 'Venta realizada y stock actualizado.'}, status=200)
+            return JsonResponse({'success': 'Venta registrada y stock actualizado.'}, status=200)
             
         except Producto.DoesNotExist:
             return JsonResponse({'error': 'Un producto en el carrito no existe.'}, status=404)
@@ -236,3 +259,12 @@ def reporte_stock_bajo(request):
         'productos': productos_bajos
     }
     return render(request, 'inventario/reporte_stock.html', context)
+
+@login_required
+@admin_required
+def reporte_ventas(request):
+    ventas = Venta.objects.all().order_by('-fecha_venta').prefetch_related('detalles', 'detalles__producto')
+    context = {
+        'ventas': ventas
+    }
+    return render(request, 'inventario/reporte_ventas.html', context)

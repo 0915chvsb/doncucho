@@ -16,7 +16,8 @@ urlpatterns = [
     path('inventario/nuevo/', views.inventario_crear, name='inventario_crear'),
     path('inventario/editar/<int:id>/', views.inventario_editar, name='inventario_editar'),
     path('inventario/eliminar/<int:id>/', views.inventario_eliminar, name='inventario_eliminar'),
-    path('inventario/reporte/', views.reporte_stock_bajo, name='reporte_stock_bajo'),
+    path('inventario/reporte-stock/', views.reporte_stock_bajo, name='reporte_stock_bajo'),
+    path('inventario/reporte-ventas/', views.reporte_ventas, name='reporte_ventas'),
 
     path('', views.index, name='index'),
 ]
