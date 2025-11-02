@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Stock Bajo{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Reporte de Productos por Agotarse</h2>
+    <a href="{% url 'gestion_inventario' %}" class="btn btn-secondary">Volver al Inventario</a>
+</div>
+
+<div class="alert alert-warning" role="alert">
+  A continuación, se muestran todos los productos cuyo <strong>Stock Actual</strong> es menor o igual a su <strong>Stock Mínimo</strong> de alerta.
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th class="text-danger">Stock Actual</th>
+                    <th class="text-info">Stock Mínimo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.codigo }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td class="text-danger font-weight-bold">{{ producto.stock }}</td>
+                    <td class="text-info">{{ producto.stock_minimo }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">¡Buenas noticias! No hay productos con stock bajo.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

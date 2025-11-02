@@ -29,7 +29,8 @@
                     <th>Código</th>
                     <th>Nombre</th>
                     <th>Precio (S/)</th>
-                    <th>Stock</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Mínimo</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -40,6 +41,7 @@
                     <td>{{ producto.nombre }}</td>
                     <td>{{ producto.precio }}</td>
                     <td>{{ producto.stock }}</td>
+                    <td>{{ producto.stock_minimo }}</td>
                     <td>
                         <a href="{% url 'inventario_editar' producto.id %}" class="btn btn-warning btn-sm">Editar</a>
                         <a href="{% url 'inventario_eliminar' producto.id %}" 
@@ -51,7 +53,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center">No hay productos en el inventario.</td>
+                    <td colspan="6" class="text-center">No hay productos en el inventario.</td>
                 </tr>
                 {% endfor %}
             </tbody>

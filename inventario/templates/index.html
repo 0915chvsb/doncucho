@@ -5,24 +5,29 @@
 {% block content %}
     <div class="jumbotron">
         <h1 class="display-4">¡Acceso Exitoso! (Admin)</h1>
-        <p class="lead">Estás en la versión 1.5 del Sistema de Inventario Don Cucho.</p>
+        <p class="lead">Bienvenido al panel de control del sistema.</p>
         <hr class="my-4">
         
         <h3 class="mt-4">Acciones de Administrador:</h3>
         <ul class="list-group">
             <li class="list-group-item list-group-item-info">
                 <a href="{% url 'gestion_inventario' %}">
-                    Gestionar Inventario (CRUD)
+                    Gestionar Inventario (Agregar, Editar, Borrar)
                 </a>
             </li>
-            <li class="list-group-item list-group-item-secondary">
-                <a href="{% url 'admin:index' %}">
-                    Ir al Panel de Administración (Técnico)
+            <li class="list-group-item list-group-item-warning">
+                <a href="{% url 'reporte_stock_bajo' %}">
+                    Ver Reporte de Stock Bajo
                 </a>
             </li>
             <li class="list-group-item list-group-item-success">
                 <a href="{% url 'pos' %}">
                     Ir al Módulo de Venta (POS)
+                </a>
+            </li>
+            <li class="list-group-item list-group-item-secondary">
+                <a href="{% url 'admin:index' %}">
+                    Ir al Panel de Administración (Técnico)
                 </a>
             </li>
         </ul>

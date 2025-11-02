@@ -5,6 +5,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre del Producto")
     precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio (S/)")
     stock = models.IntegerField(default=0, verbose_name="Stock Disponible")
+    stock_minimo = models.IntegerField(default=5, verbose_name="Stock Mínimo de Alerta")
 
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"

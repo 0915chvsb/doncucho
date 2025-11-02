@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from functools import wraps
+from django.db.models import F
 # from django.contrib import messages
 
 import firebase_admin
@@ -73,8 +74,8 @@ def _login_verification_logic(request):
                     user = User.objects.create_user(
                         username=email,
                         email=email,
-                        is_staff=True,
-                        is_superuser=True
+                        is_staff=False,
+                        is_superuser=False
                     )
                     user.set_unusable_password() 
                     user.save()
@@ -107,7 +108,7 @@ def api_buscar_producto(request):
             codigo = data.get('codigo')
             
             if not codigo:
-                return JsonResponse({'error': 'No se proporcionó código.'}, status=400)
+                return JsonResponse({'error': 'No se proporcionado código.'}, status=400)
 
             producto = Producto.objects.get(codigo=codigo)
             
@@ -147,13 +148,15 @@ def inventario_crear(request):
         nombre = request.POST.get('nombre')
         precio = request.POST.get('precio')
         stock = request.POST.get('stock')
+        stock_minimo = request.POST.get('stock_minimo')
         
         try:
             Producto.objects.create(
                 codigo=codigo,
                 nombre=nombre,
                 precio=precio,
-                stock=stock
+                stock=stock,
+                stock_minimo=stock_minimo
             )
             return redirect('gestion_inventario')
         except IntegrityError:
@@ -173,6 +176,7 @@ def inventario_editar(request, id):
         producto.nombre = request.POST.get('nombre')
         producto.precio = request.POST.get('precio')
         producto.stock = request.POST.get('stock')
+        producto.stock_minimo = request.POST.get('stock_minimo')
         
         try:
             producto.save()
@@ -220,3 +224,12 @@ def api_finalizar_venta(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+@login_required
+@admin_required
+def reporte_stock_bajo(request):
+    productos_bajos = Producto.objects.filter(stock__lte=F('stock_minimo'))
+    context = {
+        'productos': productos_bajos
+    }
+    return render(request, 'inventario/reporte_stock.html', context)
