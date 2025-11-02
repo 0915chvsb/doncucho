@@ -8,7 +8,7 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.db.models import F
-# from django.contrib import messages
+from django.contrib import messages
 
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -158,11 +158,12 @@ def inventario_crear(request):
                 stock=stock,
                 stock_minimo=stock_minimo
             )
+            messages.success(request, f'¡El producto "{nombre}" se creó correctamente!')
             return redirect('gestion_inventario')
         except IntegrityError:
-            pass 
+            messages.error(request, f'Error: El código "{codigo}" ya existe. Intenta con otro.')
         except Exception as e:
-            pass 
+            messages.error(request, f'Error al guardar: {e}')
             
     return render(request, 'inventario/inventario_form.html')
 
@@ -180,11 +181,12 @@ def inventario_editar(request, id):
         
         try:
             producto.save()
+            messages.success(request, f'¡El producto "{producto.nombre}" se actualizó correctamente!')
             return redirect('gestion_inventario')
         except IntegrityError:
-            pass 
+            messages.error(request, f'Error: Ese código ya está en uso por otro producto.')
         except Exception as e:
-            pass
+            messages.error(request, f'Error al guardar: {e}')
             
     context = {
         'producto': producto
@@ -196,6 +198,7 @@ def inventario_editar(request, id):
 def inventario_eliminar(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
+    messages.success(request, f'El producto "{producto.nombre}" fue eliminado.')
     return redirect('gestion_inventario')
 
 @login_required
