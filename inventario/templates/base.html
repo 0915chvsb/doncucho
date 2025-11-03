@@ -6,32 +6,53 @@
     <title>{% block title %}{% endblock %} - Sistema Don Cucho</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{% url 'index' %}">Don Cucho Web</a>
-        <div class="collapse navbar-collapse">
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <strong>Don Cucho Web</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_staff %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'gestion_inventario' %}">Inventario</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'pos' %}">POS</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'gestion_inventario' %}">Gestión de Inventario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'pos' %}">Caja (POS)</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownReportes" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Reportes
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownReportes">
+                                <a class="dropdown-item" href="{% url 'reporte_stock_bajo' %}">Reporte de Stock Bajo</a>
+                                <a class="dropdown-item" href="{% url 'reporte_ventas' %}">Reporte de Ventas</a>
+                            </div>
+                        </li>
                     {% endif %}
                 {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% if request.user.is_authenticated %}
-                    <li class="nav-item navbar-text mr-3">Hola, {{ request.user.username }}</li>
-                    
+                    <li class="nav-item navbar-text mr-3">
+                        Hola, {{ request.user.username }}
+                    </li>
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="post" style="display: inline;">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger">Cerrar Sesión</button>
+                            <button type="submit" class="btn btn-outline-danger my-2 my-sm-0">Cerrar Sesión</button>
                         </form>
                     </li>
-                    {% endif %}
+                {% endif %}
             </ul>
         </div>
     </nav>
+
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>

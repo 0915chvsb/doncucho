@@ -5,9 +5,12 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Gestión de Inventario</h2>
-    <a href="{% url 'inventario_crear' %}" class="btn btn-primary">Añadir Nuevo Producto</a>
+    <a href="{% url 'inventario_crear' %}" class="btn btn-primary shadow-sm">
+        Añadir Nuevo Producto
+    </a>
 </div>
 
+{% comment %}
 {% if messages %}
     {% for message in messages %}
         <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
@@ -18,44 +21,47 @@
         </div>
     {% endfor %}
 {% endif %}
+{% endcomment %}
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Precio (S/)</th>
-                    <th>Stock Actual</th>
-                    <th>Stock Mínimo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.codigo }}</td>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.precio }}</td>
-                    <td>{{ producto.stock }}</td>
-                    <td>{{ producto.stock_minimo }}</td>
-                    <td>
-                        <a href="{% url 'inventario_editar' producto.id %}" class="btn btn-warning btn-sm">Editar</a>
-                        <a href="{% url 'inventario_eliminar' producto.id %}" 
-                           class="btn btn-danger btn-sm" 
-                           onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
-                           Eliminar
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">No hay productos en el inventario.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Precio (S/)</th>
+                        <th class="text-center">Stock Actual</th>
+                        <th class="text-center">Stock Mínimo</th>
+                        <th class="text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.codigo }}</td>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.precio }}</td>
+                        <td class="text-center">{{ producto.stock }}</td>
+                        <td class="text-center">{{ producto.stock_minimo }}</td>
+                        <td class="text-right">
+                            <a href="{% url 'inventario_editar' producto.id %}" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="{% url 'inventario_eliminar' producto.id %}" 
+                               class="btn btn-danger btn-sm" 
+                               onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
+                               Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">No hay productos en el inventario.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
