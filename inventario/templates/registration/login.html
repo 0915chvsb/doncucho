@@ -4,28 +4,40 @@
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header text-center">
-        <h3>Acceso - Sistema Don Cucho</h3>
-    </div>
-    <div class="card-body">
+<div class="card shadow-lg border-0 rounded-lg">
+    <div class="card-body p-5">
+        
+        <div class="mb-4 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-lock-fill text-primary" viewBox="0 0 16 16">
+                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            </svg>
+            <h3 class="mt-3">Acceso al Sistema</h3>
+            <p class="text-muted">Inicia sesión con tu cuenta.</p>
+        </div>
+
         <form id="loginForm" method="POST">
             {% csrf_token %}
-            <div class="form-group">
-                <label for="id_email">Email (o Usuario)</label>
+            
+            <div class="form-group text-left">
+                <label for="id_email">Correo Electrónico</label>
                 <input type="email" name="email" id="id_email" class="form-control" required>
             </div>
-            <div class="form-group">
+            
+            <div class="form-group text-left">
                 <label for="id_password">Contraseña</label>
                 <input type="password" name="password" id="id_password" class="form-control" required>
             </div>
             
-            <button type="submit" class="btn btn-primary btn-block">Entrar con Firebase</button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-4">
+                Entrar
+            </button>
+
             <div id="error-message" class="text-danger mt-3" style="display:none;"></div>
         </form>
+
     </div>
-    <div class="card-footer text-center text-muted">
-        Usa tu cuenta de Firebase.
+    <div class="card-footer text-center text-muted py-3">
+        Don Cucho
     </div>
 </div>
 {% endblock %}
@@ -71,15 +83,14 @@
 
         } catch (error) {
             let msg = 'Error desconocido. Revisa email y contraseña.';
-            
-            if (error.code === 'auth/api-key-not-valid') {
-                msg = 'ERROR DE CONFIGURACIÓN: La Clave API de Firebase no es válida. Revisa base_login.html.';
-            } else if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
                 msg = 'Usuario o email no encontrado.';
             } else if (error.code === 'auth/wrong-password') {
                 msg = 'Contraseña incorrecta. Intenta de nuevo.';
             } else if (error.code === 'auth/network-request-failed') {
                 msg = 'Error de red. Revisa tu conexión a internet.';
+            } else if (error.code === 'auth/api-key-not-valid') {
+                msg = 'ERROR DE CONFIGURACIÓN: La Clave API de Firebase no es válida. Revisa base_login.html.';
             }
             errorMessage.textContent = msg;
             errorMessage.style.display = 'block';
