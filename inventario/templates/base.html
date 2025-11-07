@@ -20,7 +20,7 @@
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_staff %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'gestion_inventario' %}">Gestión de Inventario</a>
+                            <a class="nav-link" href="{% url 'control_inventario' %}">Control de Inventario</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'pos' %}">Caja (POS)</a>

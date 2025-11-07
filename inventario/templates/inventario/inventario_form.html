@@ -39,7 +39,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="stock">Stock Actual</label>
-                <input type="number" class="form-control" id="stock" name="stock" value="{{ producto.stock|default:'' }}" required>
+                <input type="number" class="form-control" id="stock" name="stock" value="{{ producto.stock_total|default:0 }}" readonly>
             </div>
         </div>
         <div class="col-md-4">
@@ -53,7 +53,7 @@
     <hr>
     
     <div class="d-flex justify-content-end">
-        <a href="{% url 'gestion_inventario' %}" class="btn btn-secondary mr-2">Cancelar</a>
+        <a href="{% url 'control_inventario' %}" class="btn btn-secondary mr-2">Cancelar</a>
         <button type="submit" class="btn btn-primary">Guardar Producto</button>
     </div>
     

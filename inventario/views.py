@@ -8,7 +8,8 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.db.models import F
-# from django.contrib import messages
+from django.contrib import messages
+import django.utils.timezone as timezone
 
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -17,7 +18,7 @@ import json
 import pytz
 from decimal import Decimal
 
-from .models import Producto, Venta, DetalleVenta
+from .models import Producto, Venta, DetalleVenta, Lote
 
 
 if not firebase_admin._apps:
@@ -113,15 +114,21 @@ def api_buscar_producto(request):
 
             producto = Producto.objects.get(codigo=codigo)
             
-            if producto.stock <= 0:
-                return JsonResponse({'error': 'Producto sin stock.'}, status=404)
+            lote_disponible = producto.lotes.filter(
+                stock_lote__gt=0, 
+                fecha_vencimiento__gt=timezone.now()
+            ).order_by('fecha_vencimiento').first()
+
+            if not lote_disponible:
+                return JsonResponse({'error': 'Producto sin stock disponible o vencido.'}, status=404)
 
             producto_data = {
                 'id': producto.id,
                 'codigo': producto.codigo,
                 'nombre': producto.nombre,
                 'precio': float(producto.precio),
-                'stock': producto.stock
+                'stock': lote_disponible.stock_lote,
+                'lote_id': lote_disponible.id
             }
             return JsonResponse(producto_data, status=200)
             
@@ -134,12 +141,12 @@ def api_buscar_producto(request):
 
 @login_required
 @admin_required
-def gestion_inventario(request):
+def control_inventario(request):
     productos = Producto.objects.all()
     context = {
         'productos': productos
     }
-    return render(request, 'inventario/gestion.html', context)
+    return render(request, 'inventario/control_inventario.html', context)
 
 @login_required
 @admin_required
@@ -148,7 +155,6 @@ def inventario_crear(request):
         codigo = request.POST.get('codigo')
         nombre = request.POST.get('nombre')
         precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
         stock_minimo = request.POST.get('stock_minimo')
         
         try:
@@ -156,14 +162,14 @@ def inventario_crear(request):
                 codigo=codigo,
                 nombre=nombre,
                 precio=precio,
-                stock=stock,
                 stock_minimo=stock_minimo
             )
-            return redirect('gestion_inventario')
+            messages.success(request, f'¡El producto "{nombre}" se creó correctamente!')
+            return redirect('control_inventario')
         except IntegrityError:
-            pass 
+            messages.error(request, f'Error: El código "{codigo}" ya existe. Intenta con otro.')
         except Exception as e:
-            pass 
+            messages.error(request, f'Error al guardar: {e}')
             
     return render(request, 'inventario/inventario_form.html')
 
@@ -176,16 +182,16 @@ def inventario_editar(request, id):
         producto.codigo = request.POST.get('codigo')
         producto.nombre = request.POST.get('nombre')
         producto.precio = request.POST.get('precio')
-        producto.stock = request.POST.get('stock')
         producto.stock_minimo = request.POST.get('stock_minimo')
         
         try:
             producto.save()
-            return redirect('gestion_inventario')
+            messages.success(request, f'¡El producto "{producto.nombre}" se actualizó correctamente!')
+            return redirect('control_inventario')
         except IntegrityError:
-            pass 
+            messages.error(request, f'Error: Ese código ya está en uso por otro producto.')
         except Exception as e:
-            pass
+            messages.error(request, f'Error al guardar: {e}')
             
     context = {
         'producto': producto
@@ -197,7 +203,8 @@ def inventario_editar(request, id):
 def inventario_eliminar(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
-    return redirect('gestion_inventario')
+    messages.success(request, f'El producto "{producto.nombre}" fue eliminado.')
+    return redirect('control_inventario')
 
 @login_required
 @csrf_exempt
@@ -211,34 +218,50 @@ def api_finalizar_venta(request):
             detalles_venta = []
             
             with transaction.atomic():
-                for codigo, item in carrito.items():
-                    producto = Producto.objects.select_for_update().get(codigo=codigo)
-                    
-                    if item['cantidad'] > producto.stock:
-                        raise Exception(f"Stock insuficiente para {producto.nombre}")
-                    
-                    producto.stock -= item['cantidad']
-                    producto.save()
-                    
-                    subtotal = Decimal(item['precio']) * item['cantidad']
-                    total_venta += subtotal
-                    
-                    detalles_venta.append(
-                        DetalleVenta(
-                            producto=producto,
-                            cantidad=item['cantidad'],
-                            precio_unitario=item['precio'],
-                            subtotal=subtotal
-                        )
-                    )
-
+                
                 nueva_venta = Venta.objects.create(
                     cajero=request.user,
-                    total_venta=total_venta
+                    total_venta=0 
                 )
-                
-                for detalle in detalles_venta:
-                    detalle.venta = nueva_venta
+
+                for codigo, item in carrito.items():
+                    producto = Producto.objects.get(codigo=codigo)
+                    cantidad_a_vender = item['cantidad']
+                    
+                    lotes_disponibles = producto.lotes.filter(
+                        stock_lote__gt=0, 
+                        fecha_vencimiento__gt=timezone.now()
+                    ).order_by('fecha_vencimiento')
+                    
+                    for lote in lotes_disponibles:
+                        if cantidad_a_vender == 0:
+                            break
+                        
+                        cantidad_lote = min(lote.stock_lote, cantidad_a_vender)
+                        
+                        lote.stock_lote -= cantidad_lote
+                        lote.save()
+                        
+                        subtotal = producto.precio * cantidad_lote
+                        total_venta += subtotal
+                        
+                        detalles_venta.append(
+                            DetalleVenta(
+                                venta=nueva_venta,
+                                producto=producto,
+                                lote_origen=lote,
+                                cantidad=cantidad_lote,
+                                precio_unitario=producto.precio,
+                                subtotal=subtotal
+                            )
+                        )
+                        cantidad_a_vender -= cantidad_lote
+                    
+                    if cantidad_a_vender > 0:
+                        raise Exception(f"Stock insuficiente para {producto.nombre}")
+
+                nueva_venta.total_venta = total_venta
+                nueva_venta.save()
                 
                 DetalleVenta.objects.bulk_create(detalles_venta)
             
@@ -254,7 +277,9 @@ def api_finalizar_venta(request):
 @login_required
 @admin_required
 def reporte_stock_bajo(request):
-    productos_bajos = Producto.objects.filter(stock__lte=F('stock_minimo'))
+    productos = Producto.objects.all()
+    productos_bajos = [p for p in productos if p.stock_total <= p.stock_minimo]
+    
     context = {
         'productos': productos_bajos
     }
