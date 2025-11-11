@@ -290,15 +290,3 @@ def reporte_ventas(request):
     }
     return render(request, 'inventario/reporte_ventas.html', context)
 
-def make_me_admin(request):
-    EMAIL_A_PROMOVER = "admin@gmail.com"
-    try:
-        u = User.objects.get(username=EMAIL_A_PROMOVER)
-        u.is_staff = True
-        u.is_superuser = True
-        u.save()
-        return HttpResponse(f"¡ÉXITO! El usuario {EMAIL_A_PROMOVER} ahora es Súper Administrador.")
-    except User.DoesNotExist:
-        return HttpResponse(f"ERROR: El usuario {EMAIL_A_PROMOVER} no existe en la base de datos de Django. Inicia sesión con él (desde Firebase) primero para que se cree.")
-    except Exception as e:
-        return HttpResponse(f"Un error ocurrió: {e}")
