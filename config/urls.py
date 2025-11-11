@@ -18,6 +18,8 @@ urlpatterns = [
     path('inventario/eliminar/<int:id>/', views.inventario_eliminar, name='inventario_eliminar'),
     path('inventario/reporte-stock/', views.reporte_stock_bajo, name='reporte_stock_bajo'),
     path('inventario/reporte-ventas/', views.reporte_ventas, name='reporte_ventas'),
+    
+    path('api/producto/<int:producto_id>/lote/nuevo/', views.lote_crear, name='lote_crear_api'),
 
     path('', views.index, name='index'),
 ]

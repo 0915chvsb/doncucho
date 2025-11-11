@@ -8,7 +8,8 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.db.models import F
-# from django.contrib import messages
+from django.contrib import messages
+import django.utils.timezone as timezone
 
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -17,7 +18,7 @@ import json
 import pytz
 from decimal import Decimal
 
-from .models import Producto, Venta, DetalleVenta, Lote
+from .models import Producto, Venta, DetalleVenta, Lote, Proveedor, Categoria
 
 
 if not firebase_admin._apps:
@@ -151,25 +152,27 @@ def control_inventario(request):
 @admin_required
 def inventario_crear(request):
     if request.method == 'POST':
-        codigo = request.POST.get('codigo')
-        nombre = request.POST.get('nombre')
-        precio = request.POST.get('precio')
-        stock_minimo = request.POST.get('stock_minimo')
-        
         try:
             Producto.objects.create(
-                codigo=codigo,
-                nombre=nombre,
-                precio=precio,
-                stock_minimo=stock_minimo
+                codigo=request.POST.get('codigo'),
+                nombre=request.POST.get('nombre'),
+                precio=request.POST.get('precio'),
+                stock_minimo=request.POST.get('stock_minimo'),
+                categoria=Categoria.objects.get(id=request.POST.get('categoria')),
+                proveedor=Proveedor.objects.get(id=request.POST.get('proveedor'))
             )
+            messages.success(request, f'¡El producto se creó correctamente!')
             return redirect('control_inventario')
         except IntegrityError:
-            pass 
+            messages.error(request, f'Error: El código ya existe. Intenta con otro.')
         except Exception as e:
-            pass 
-            
-    return render(request, 'inventario/inventario_form.html')
+            messages.error(request, f'Error al guardar: {e}')
+    
+    context = {
+        'categorias': Categoria.objects.all(),
+        'proveedores': Proveedor.objects.all()
+    }
+    return render(request, 'inventario/inventario_form.html', context)
 
 @login_required
 @admin_required
@@ -181,17 +184,22 @@ def inventario_editar(request, id):
         producto.nombre = request.POST.get('nombre')
         producto.precio = request.POST.get('precio')
         producto.stock_minimo = request.POST.get('stock_minimo')
+        producto.categoria = Categoria.objects.get(id=request.POST.get('categoria'))
+        producto.proveedor = Proveedor.objects.get(id=request.POST.get('proveedor'))
         
         try:
             producto.save()
+            messages.success(request, f'¡El producto se actualizó correctamente!')
             return redirect('control_inventario')
         except IntegrityError:
-            pass 
+            messages.error(request, f'Error: Ese código ya está en uso por otro producto.')
         except Exception as e:
-            pass
+            messages.error(request, f'Error al guardar: {e}')
             
     context = {
-        'producto': producto
+        'producto': producto,
+        'categorias': Categoria.objects.all(),
+        'proveedores': Proveedor.objects.all()
     }
     return render(request, 'inventario/inventario_form.html', context)
 
@@ -200,6 +208,7 @@ def inventario_editar(request, id):
 def inventario_eliminar(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
+    messages.success(request, f'El producto "{producto.nombre}" fue eliminado.')
     return redirect('control_inventario')
 
 @login_required
@@ -290,3 +299,27 @@ def reporte_ventas(request):
     }
     return render(request, 'inventario/reporte_ventas.html', context)
 
+@login_required
+@admin_required
+def lote_crear(request, producto_id):
+    if request.method == 'POST':
+        try:
+            producto = get_object_or_404(Producto, id=producto_id)
+            precio_compra = request.POST.get('precio_compra')
+            stock_lote = request.POST.get('stock_lote')
+            fecha_vencimiento = request.POST.get('fecha_vencimiento')
+            
+            if not all([precio_compra, stock_lote, fecha_vencimiento]):
+                return JsonResponse({'error': 'Todos los campos son obligatorios.'}, status=400)
+                
+            Lote.objects.create(
+                producto=producto,
+                precio_compra=precio_compra,
+                stock_lote=stock_lote,
+                fecha_vencimiento=fecha_vencimiento
+            )
+            return JsonResponse({'success': f'Lote añadido a {producto.nombre}.'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': f'Error al guardar el lote: {e}'}, status=400)
+    
+    return JsonResponse({'error': 'Método no permitido.'}, status=405)

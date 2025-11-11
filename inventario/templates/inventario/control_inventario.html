@@ -41,6 +41,12 @@
                     <td>{{ producto.stock_total }}</td>
                     <td>{{ producto.stock_minimo }}</td>
                     <td>
+                        <button type="button" class="btn btn-success btn-sm btn-anadir-lote" 
+                                data-toggle="modal" data-target="#modalAnadirLote"
+                                data-productoid="{{ producto.id }}" 
+                                data-productonombre="{{ producto.nombre }}">
+                            Añadir Lote
+                        </button>
                         <a href="{% url 'inventario_editar' producto.id %}" class="btn btn-warning btn-sm">Editar</a>
                         <a href="{% url 'inventario_eliminar' producto.id %}" 
                            class="btn btn-danger btn-sm" 
@@ -58,4 +64,119 @@
         </table>
     </div>
 </div>
+
+<div class="modal fade" id="modalAnadirLote" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Añadir Lote para: <span></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form-lote">
+                <div class="modal-body">
+                    <div id="error-lote" class="alert alert-danger" style="display: none;"></div>
+                    <input type="hidden" id="lote-producto-id" name="producto_id">
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="lote-precio-compra">Precio de Compra (S/)</label>
+                                <input type="number" step="0.01" class="form-control" id="lote-precio-compra" name="precio_compra" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="lote-stock">Stock de este Lote</label>
+                                <input type="number" class="form-control" id="lote-stock" name="stock_lote" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="lote-fecha">Fecha de Vencimiento</label>
+                                <input type="date" class="form-control" id="lote-fecha" name="fecha_vencimiento" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Lote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const modalAnadirLote = $('#modalAnadirLote');
+    const formLote = document.getElementById('form-lote');
+    const errorLote = document.getElementById('error-lote');
+    
+    document.querySelectorAll('.btn-anadir-lote').forEach(button => {
+        button.addEventListener('click', function() {
+            const productoId = this.dataset.productoid;
+            const productoNombre = this.dataset.productonombre;
+            
+            document.getElementById('lote-producto-id').value = productoId;
+            document.getElementById('modalLabel').querySelector('span').textContent = productoNombre;
+            
+            errorLote.style.display = 'none';
+            formLote.reset();
+        });
+    });
+    
+    formLote.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const productoId = document.getElementById('lote-producto-id').value;
+        const url = `/api/producto/${productoId}/lote/nuevo/`;
+        
+        const data = new FormData(formLote);
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: new URLSearchParams(data)
+            });
+            
+            const result = await response.json();
+
+            if (response.ok) {
+                modalAnadirLote.modal('hide');
+                location.reload(); 
+            } else {
+                errorLote.textContent = result.error || 'Error desconocido.';
+                errorLote.style.display = 'block';
+            }
+        } catch (err) {
+            errorLote.textContent = 'Error de red. Intente de nuevo.';
+            errorLote.style.display = 'block';
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
 {% endblock %}
