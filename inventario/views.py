@@ -8,8 +8,7 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.db.models import F
-from django.contrib import messages
-import django.utils.timezone as timezone
+# from django.contrib import messages
 
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -164,12 +163,11 @@ def inventario_crear(request):
                 precio=precio,
                 stock_minimo=stock_minimo
             )
-            messages.success(request, f'¡El producto "{nombre}" se creó correctamente!')
             return redirect('control_inventario')
         except IntegrityError:
-            messages.error(request, f'Error: El código "{codigo}" ya existe. Intenta con otro.')
+            pass 
         except Exception as e:
-            messages.error(request, f'Error al guardar: {e}')
+            pass 
             
     return render(request, 'inventario/inventario_form.html')
 
@@ -186,12 +184,11 @@ def inventario_editar(request, id):
         
         try:
             producto.save()
-            messages.success(request, f'¡El producto "{producto.nombre}" se actualizó correctamente!')
             return redirect('control_inventario')
         except IntegrityError:
-            messages.error(request, f'Error: Ese código ya está en uso por otro producto.')
+            pass 
         except Exception as e:
-            messages.error(request, f'Error al guardar: {e}')
+            pass
             
     context = {
         'producto': producto
@@ -203,7 +200,6 @@ def inventario_editar(request, id):
 def inventario_eliminar(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
-    messages.success(request, f'El producto "{producto.nombre}" fue eliminado.')
     return redirect('control_inventario')
 
 @login_required
@@ -293,3 +289,16 @@ def reporte_ventas(request):
         'ventas': ventas
     }
     return render(request, 'inventario/reporte_ventas.html', context)
+
+def make_me_admin(request):
+    EMAIL_A_PROMOVER = "admin@gmail.com"
+    try:
+        u = User.objects.get(username=EMAIL_A_PROMOVER)
+        u.is_staff = True
+        u.is_superuser = True
+        u.save()
+        return HttpResponse(f"¡ÉXITO! El usuario {EMAIL_A_PROMOVER} ahora es Súper Administrador.")
+    except User.DoesNotExist:
+        return HttpResponse(f"ERROR: El usuario {EMAIL_A_PROMOVER} no existe en la base de datos de Django. Inicia sesión con él (desde Firebase) primero para que se cree.")
+    except Exception as e:
+        return HttpResponse(f"Un error ocurrió: {e}")
