@@ -1,5 +1,6 @@
 import os
 from django.apps import AppConfig
+from django.conf import settings
 
 import firebase_admin
 from firebase_admin import credentials
@@ -10,11 +11,11 @@ class InventarioConfig(AppConfig):
 
     def ready(self):
         if not firebase_admin._apps:
-            service_account_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
-                'serviceAccountKey.json'
-            )
-            
-            cred = credentials.Certificate(service_account_path)
-            firebase_admin.initialize_app(cred)
-            print("Firebase Admin SDK inicializado correctamente.")
+            try:
+                cred_config = settings.FIREBASE_SERVICE_ACCOUNT
+                
+                cred = credentials.Certificate(cred_config)
+                firebase_admin.initialize_app(cred)
+                print("Firebase Admin SDK inicializado correctamente.")
+            except Exception as e:
+                print(f"ERROR: No se pudo inicializar Firebase Admin SDK. {e}")
