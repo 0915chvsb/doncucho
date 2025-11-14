@@ -1,67 +1,92 @@
 {% extends 'base.html' %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Panel de Control{% endblock %}
 
 {% block content %}
-    <div class="jumbotron shadow-sm text-center">
-        <h1 class="display-4">¡Bienvenido, {{ request.user.username }}!</h1>
-        <p class="lead">Este es el panel de control del Sistema de Inventario Don Cucho.</p>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
     </div>
     
-    <div class="row justify-content-center">
-        <div class="col-md-8"> 
-    
-            <h3 class="mt-4 mb-3 text-center">Módulos del Sistema</h3>
-            
-            <div class="card mb-3 shadow-sm text-center">
-                <div class="card-body">
-                    <h5 class="card-title">Caja Registradora (POS)</h5>
-                    <p class="card-text">Ir al módulo de venta para registrar compras de clientes y descontar productos del stock.</p>
-                    <a href="{% url 'pos' %}" class="btn btn-success">Ir a la Caja</a>
-                </div>
-            </div>
+    <div class="row">
 
-            <div class="card mb-3 shadow-sm text-center">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
-                    <h5 class="card-title">Control de Inventario</h5>
-                    <p class="card-text">Añadir nuevos productos, editar precios, actualizar el stock o eliminar items del sistema.</p>
-                    <a href="{% url 'control_inventario' %}" class="btn btn-info">Controlar Productos</a>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                POS</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Caja</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'pos' %}" class="stretched-link"></a>
                 </div>
             </div>
-            
-            <div class="card mb-3 shadow-sm text-center">
-                <div class="card-body">
-                    <h5 class="card-title">Reporte de Stock Bajo</h5>
-                    <p class="card-text">Ver una lista filtrada de productos que están a punto de agotarse.</p>
-                    <a href="{% url 'reporte_stock_bajo' %}" class="btn btn-warning">Ver Reporte de Stock</a>
-                </div>
-            </div>
+        </div>
 
-            <div class="card mb-3 shadow-sm text-center">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
-                    <h5 class="card-title">Reporte de Ventas</h5>
-                    <p class="card-text">Consultar el historial de todas las ventas realizadas por los cajeros.</p>
-                    <a href="{% url 'reporte_ventas' %}" class="btn btn-primary">Ver Historial de Ventas</a>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Administración</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Control de Inventario</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'control_inventario' %}" class="stretched-link"></a>
                 </div>
             </div>
-            
-            <div class="card mb-3 shadow-sm text-center table-danger">
-                <div class="card-body">
-                    <h5 class="card-title">Reporte de Próximos Vencimientos</h5>
-                    <p class="card-text">Ver productos que están a 15 días o menos de vencer.</p>
-                    <a href="{% url 'reporte_vencimiento' %}" class="btn btn-danger">Ver Vencimientos</a>
-                </div>
-            </div>
-            
-            <div class="card mb-3 shadow-sm text-center">
-                <div class="card-body">
-                    <h5 class="card-title">Panel Técnico</h5>
-                    <p class="card-text">Acceder al panel de Django para gestión avanzada de la base de datos y usuarios.</p>
-                    <a href="{% url 'admin:index' %}" class="btn btn-secondary">Ir al Admin</a>
-                </div>
-            </div>
-
         </div>
     </div>
 
+    <h3 class="h4 mb-3 text-gray-800">Reportes</h3>
+    <div class="row">
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Alertas</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Reporte Stock Bajo</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'reporte_stock_bajo' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Historial</div>
+                            <div classs="h5 mb-0 font-weight-bold text-gray-800">Reporte de Ventas</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'reporte_ventas' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Urgente</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Próximos Vencimientos</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'reporte_vencimiento' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 {% endblock %}
