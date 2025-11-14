@@ -45,9 +45,17 @@
                 </div>
             </div>
             
+            <div class="card mb-3 shadow-sm text-center table-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Reporte de Próximos Vencimientos</h5>
+                    <p class="card-text">Ver productos que están a 15 días o menos de vencer.</p>
+                    <a href="{% url 'reporte_vencimiento' %}" class="btn btn-danger">Ver Vencimientos</a>
+                </div>
+            </div>
+            
             <div class="card mb-3 shadow-sm text-center">
                 <div class="card-body">
-                    <h5 class="card-title">Panel Técnico (Avanzado)</h5>
+                    <h5 class="card-title">Panel Técnico</h5>
                     <p class="card-text">Acceder al panel de Django para gestión avanzada de la base de datos y usuarios.</p>
                     <a href="{% url 'admin:index' %}" class="btn btn-secondary">Ir al Admin</a>
                 </div>

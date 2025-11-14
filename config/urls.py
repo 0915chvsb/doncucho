@@ -20,6 +20,7 @@ urlpatterns = [
     path('inventario/reporte-ventas/', views.reporte_ventas, name='reporte_ventas'),
     
     path('api/producto/<int:producto_id>/lote/nuevo/', views.lote_crear, name='lote_crear_api'),
+    path('inventario/reporte-vencimiento/', views.reporte_vencimiento, name='reporte_vencimiento'),
 
     path('', views.index, name='index'),
 ]

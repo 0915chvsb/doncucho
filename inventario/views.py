@@ -10,6 +10,7 @@ from functools import wraps
 from django.db.models import F
 from django.contrib import messages
 import django.utils.timezone as timezone
+from datetime import timedelta
 
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -323,3 +324,21 @@ def lote_crear(request, producto_id):
             return JsonResponse({'error': f'Error al guardar el lote: {e}'}, status=400)
     
     return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+@login_required
+@admin_required
+def reporte_vencimiento(request):
+    hoy = timezone.now().date()
+    limite_15_dias = hoy + timedelta(days=15)
+    
+    lotes_a_vencer = Lote.objects.filter(
+        fecha_vencimiento__gte=hoy,
+        fecha_vencimiento__lte=limite_15_dias,
+        stock_lote__gt=0
+    ).order_by('fecha_vencimiento').select_related('producto')
+    
+    context = {
+        'lotes': lotes_a_vencer,
+        'dias_limite': 15
+    }
+    return render(request, 'inventario/reporte_vencimiento.html', context)
