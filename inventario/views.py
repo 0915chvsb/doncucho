@@ -42,14 +42,39 @@ def admin_required(view_func):
 @login_required
 def index(request):
     if not request.user.is_authenticated:
-        return redirect('login') 
-    
+        return redirect('login')
+
     if not request.user.is_staff:
         return redirect('pos')
 
+    from django.db.models import Sum, Q
+    productos_bajo_stock = []
+    fecha_limite = timezone.now() + timedelta(days=30)
+    for producto in Producto.objects.all():
+        if producto.stock_total < producto.stock_minimo:
+            productos_bajo_stock.append(producto)    
+            
+    lotes_por_vencer = Lote.objects.filter(
+        fecha_vencimiento__lte= fecha_limite,
+
+        fecha_vencimiento__gt=timezone.now(),
+        stock_lote__gt=0
+    ).order_by('fecha_vencimiento')
+
+    hoy = timezone.now().date()
+    ventas_hoy = Venta.objects.filter(fecha_venta__date=hoy)
+    total_ventas_hoy = ventas_hoy.aggregate(Sum('total_venta'))['total_venta__sum'] or 0
+    cantidad_ventas_hoy = ventas_hoy.count()
+
     context = {
         'username': request.user.username,
-        'is_admin': request.user.is_staff
+        'is_admin': request.user.is_staff,
+        'productos_bajo_stock': productos_bajo_stock,
+        'count_bajo_stock': len(productos_bajo_stock),
+        'lotes_por_vencer': lotes_por_vencer,
+        'count_por_vencer': lotes_por_vencer.count(),
+        'total_ventas_hoy': total_ventas_hoy,
+        'cantidad_ventas_hoy': cantidad_ventas_hoy,
     }
     return render(request, 'index.html', context)
 

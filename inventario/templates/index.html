@@ -1,184 +1,197 @@
-% extends 'base.html' %}
+{% extends 'base.html' %}
+
 
 {% block title %}Panel de Control{% endblock %}
 
+
 {% block content %}
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-    </div>
+   <div class="d-sm-flex align-items-center justify-content-between mb-4">
+       <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+   </div>
 
-    <div class="row mb-4">
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Stock Bajo
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ count_bajo_stock }} producto{{ count_bajo_stock|pluralize }}
-                            </div>
-                            {% if count_bajo_stock > 0 %}
-                            <div class="text-xs text-muted mt-1">
-                                Requiere reposición
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <a href="{% url 'reporte_stock_bajo' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
+   <div class="row mb-4">
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Próximos a Vencer
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ count_por_vencer }} lote{{ count_por_vencer|pluralize }}
-                            </div>
-                            {% if count_por_vencer > 0 %}
-                            <div class="text-xs text-muted mt-1">
-                                En los próximos 30 días
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <a href="{% url 'reporte_vencimiento' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Ventas Hoy
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                S/ {{ total_ventas_hoy|floatformat:2 }}
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                {{ cantidad_ventas_hoy }} venta{{ cantidad_ventas_hoy|pluralize }}
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{% url 'reporte_ventas' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Inventario
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                Gestionar Stock
-                            </div>
-                            <div class="text-xs text-muted mt-1">
-                                Control de productos
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{% url 'control_inventario' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card border-left-danger shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                               Stock Bajo
+                           </div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">
+                               {{ count_bajo_stock }} producto{{ count_bajo_stock|pluralize }}
+                           </div>
+                           {% if count_bajo_stock > 0 %}
+                           <div class="text-xs text-muted mt-1">
+                               Requiere reposición
+                           </div>
+                           {% endif %}
+                       </div>
+                   </div>
+                   <a href="{% url 'reporte_stock_bajo' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
 
-    </div>
 
-    <h3 class="h4 mb-3 text-gray-800">Accesos Rápidos</h3>
-    <div class="row">
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card border-left-warning shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                               Próximos a Vencer
+                           </div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">
+                               {{ count_por_vencer }} lote{{ count_por_vencer|pluralize }}
+                           </div>
+                           {% if count_por_vencer > 0 %}
+                           <div class="text-xs text-muted mt-1">
+                               En los próximos 30 días
+                           </div>
+                           {% endif %}
+                       </div>
+                   </div>
+                   <a href="{% url 'reporte_vencimiento' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                POS</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Punto de Venta</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'pos' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Administración</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Panel Admin</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'admin:index' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
-    </div>
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card border-left-success shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                               Ventas Hoy
+                           </div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">
+                               S/ {{ total_ventas_hoy|floatformat:2 }}
+                           </div>
+                           <div class="text-xs text-muted mt-1">
+                               {{ cantidad_ventas_hoy }} venta{{ cantidad_ventas_hoy|pluralize }}
+                           </div>
+                       </div>
+                   </div>
+                   <a href="{% url 'reporte_ventas' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card border-left-info shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                               Inventario
+                           </div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">
+                               Gestionar Stock
+                           </div>
+                           <div class="text-xs text-muted mt-1">
+                               Control de productos
+                           </div>
+                       </div>
+                   </div>
+                   <a href="{% url 'control_inventario' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
 
-    <h3 class="h4 mb-3 text-gray-800">Reportes</h3>
-    <div class="row">
 
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Alertas</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Reporte Stock Bajo</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'reporte_stock_bajo' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Historial</div>
-                            <div classs="h5 mb-0 font-weight-bold text-gray-800">Reporte de Ventas</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'reporte_ventas' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
+   </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Urgente</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Próximos Vencimientos</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'reporte_vencimiento' %}" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
-        
-    </div>
+
+   <h3 class="h4 mb-3 text-gray-800">Accesos Rápidos</h3>
+   <div class="row">
+
+
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card border-left-success shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                               POS</div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">Punto de Venta</div>
+                       </div>
+                   </div>
+                   <a href="{% url 'pos' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
+
+
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card border-left-info shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                               Administración</div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">Panel Admin</div>
+                       </div>
+                   </div>
+                   <a href="{% url 'admin:index' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
+   </div>
+
+
+   <h3 class="h4 mb-3 text-gray-800">Reportes</h3>
+   <div class="row">
+
+
+       <div class="col-xl-4 col-md-6 mb-4">
+           <div class="card border-left-warning shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                               Alertas</div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">Reporte Stock Bajo</div>
+                       </div>
+                   </div>
+                   <a href="{% url 'reporte_stock_bajo' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
+      
+       <div class="col-xl-4 col-md-6 mb-4">
+           <div class="card border-left-primary shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                               Historial</div>
+                           <div classs="h5 mb-0 font-weight-bold text-gray-800">Reporte de Ventas</div>
+                       </div>
+                   </div>
+                   <a href="{% url 'reporte_ventas' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
+
+
+       <div class="col-xl-4 col-md-6 mb-4">
+           <div class="card border-left-danger shadow h-100 py-2">
+               <div class="card-body">
+                   <div class="row no-gutters align-items-center">
+                       <div class="col mr-2">
+                           <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                               Urgente</div>
+                           <div class="h5 mb-0 font-weight-bold text-gray-800">Próximos Vencimientos</div>
+                       </div>
+                   </div>
+                   <a href="{% url 'reporte_vencimiento' %}" class="stretched-link"></a>
+               </div>
+           </div>
+       </div>
+      
+   </div>
 {% endblock %}
