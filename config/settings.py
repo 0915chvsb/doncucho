@@ -2,8 +2,11 @@ import os
 from pathlib import Path
 import dj_database_url
 import json
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
 
 FIREBASE_SERVICE_ACCOUNT_JSON_STRING = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
 
@@ -57,6 +60,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'inventario.context_processors.firebase_config',
             ],
         },
     },
@@ -73,11 +77,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'doncucho_db',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres', 
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'NAME': os.environ.get('DB_NAME', 'doncucho_db'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
 
